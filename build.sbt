@@ -5,7 +5,7 @@ lazy val scioIdeaPlugin: Project =
     .enablePlugins(SbtIdeaPlugin)
     .settings(
       name := "longevity-idea-plugin",
-      version := "1.0",
+      version := "1.1",
       scalaVersion := "2.11.7",
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
       ideaInternalPlugins := Seq(),
