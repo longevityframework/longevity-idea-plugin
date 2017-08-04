@@ -2,7 +2,7 @@
     <id>longevity.idea-plugin</id>
     <name>Longevity</name>
     <version>1.0</version>
-    <vendor url="http://www.jetbrains.com">JetBrains</vendor>
+    <vendor url="http://longevityframework.org/">Longevity</vendor>
 
     <description>Longevity macro support for IntelliJ IDEA</description>
 
