@@ -1,19 +1,14 @@
 package longevity.idea.injector
 
-import java.io.{File, PrintWriter}
-
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
 import scala.collection.mutable.ArrayBuffer
 
-
 /**
-  * @author Alefas
-  * @since  14/10/15
+  * @author mardo
   */
 class Injector extends SyntheticMembersInjector {
 
@@ -31,20 +26,6 @@ class Injector extends SyntheticMembersInjector {
 						  })
 					  	.flatMap(_.extractClass)
 					  	.map(_.getQualifiedName)
-
-
-						val pw = new PrintWriter(new File("/Users/mardo/tmp/hello.txt" ))
-						try {
-							pw.append(domainModelClass.getOrElse("nope"))
-							pw.append("\n")
-						} catch {
-							case e: Exception =>
-								pw.append(e.getMessage)
-							case e =>
-								pw.append(e.toString)
-						}
-						pw.append("\n")
-						pw.close
 
 						val buffer = new ArrayBuffer[String]
 						if (domainModelClass.isDefined) {
