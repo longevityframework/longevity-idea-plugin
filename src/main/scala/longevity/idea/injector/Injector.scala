@@ -1,5 +1,9 @@
 package longevity.idea.injector
 
+import java.io.{File, PrintWriter}
+
+import com.intellij.psi.PsiType
+import com.intellij.psi.impl.source.PsiImmediateClassType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -42,9 +46,31 @@ class Injector extends SyntheticMembersInjector {
 	override def injectMembers(source: ScTypeDefinition): Seq[String] = {
 		source match {
 			// Monocle lenses generation
+			case obj: ScObject if obj.findAnnotation("longevity.model.annotations.mprops") != null =>
+				val modelClass = obj.getExtendsListTypes
+					.find {
+						case t: PsiImmediateClassType => t.resolve().getQualifiedName == "longevity.model.PType"
+						case _ => false
+					}
+					.flatMap {
+						case t: PsiImmediateClassType =>
+							t.getParameters.drop(1).headOption match {
+								case Some(tp: PsiImmediateClassType) =>
+									Some(tp.resolve().asInstanceOf[ScClass])
+								case _ =>
+									None
+							}
+						case _ =>
+							None
+					}
+
+				modelClass.map(mc => patchPersistentCompanionObject(obj, mc)).getOrElse(Seq.empty)
+
 			case obj: ScObject =>
 				obj.fakeCompanionClassOrCompanionClass match {
-					case clazz: ScClass if clazz.findAnnotation("longevity.model.annotations.persistent") != null => patchPersistentCompanionObject(obj)
+					case clazz: ScClass if clazz.findAnnotation("longevity.model.annotations.persistent") != null =>
+						val clazz = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScClass]
+						patchPersistentCompanionObject(obj, clazz)
 					case _ => Seq.empty
 				}
 			case _ => Seq.empty
@@ -70,8 +96,7 @@ class Injector extends SyntheticMembersInjector {
 			"""
 	}
 
-	private def patchPersistentCompanionObject(obj: ScObject): ArrayBuffer[String] = {
-		val clazz = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScClass]
+	private def patchPersistentCompanionObject(obj: ScObject, clazz: ScClass): ArrayBuffer[String] = {
 		val fields = clazz.allVals.collect({ case (f: ScClassParameterImpl, _) => f }).filter(_.isCaseClassVal)
 		val fieldsStrings = fields.map(getFieldTemplate(clazz))
 
