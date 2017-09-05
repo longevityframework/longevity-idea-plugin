@@ -18,7 +18,6 @@ class Injector extends SyntheticMembersInjector {
 
 	override def injectSupers(source: ScTypeDefinition): Seq[String] = {
 		source match {
-			// Monocle lenses generation
 			case obj: ScObject =>
 				obj.fakeCompanionClassOrCompanionClass match {
 					case clazz: ScClass if clazz.findAnnotation("longevity.model.annotations.persistent") != null =>
@@ -45,7 +44,6 @@ class Injector extends SyntheticMembersInjector {
 
 	override def injectMembers(source: ScTypeDefinition): Seq[String] = {
 		source match {
-			// Monocle lenses generation
 			case obj: ScObject if obj.findAnnotation("longevity.model.annotations.mprops") != null =>
 				val modelClass = obj.getExtendsListTypes
 					.find {
